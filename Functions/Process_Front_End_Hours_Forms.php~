@@ -1,0 +1,61 @@
+<?php
+function Process_EWD_FEUPHRS_Front_End_Forms() {
+
+		global $user_message;
+
+        if (isset($_POST['ewd-feup-action'])) {
+		    switch ($_POST['ewd-feup-action']) {
+			    case "register":
+			    case "edit-profile":
+			    case "edit-account":
+				    $user_message = Add_Edit_User();
+				    break;
+			    case "login":
+				    $user_message['Message'] = Confirm_Login();
+				    break;
+			    case "forgot-password":
+				    $user_message['Message'] = Forgot_Password();
+				    break;
+
+			    case "confirm-forgot-password":
+				    $user_message['Message'] = Confirm_Forgot_Password();
+				    break;
+		        case "hours":
+                    $user_message['Message'] = Enter_Hours();
+                    break;
+            }
+		}
+
+}
+
+function Enter_Hours() {
+	global $wpdb, $feup_success;
+	global $ewd_feup_user_hours_table_name;
+	$user = CheckLoginCookie();
+	if (!$user) {
+		return __("Error: Not logged in", 'EWD_FEUP');
+	}
+	if (!is_numeric($_POST['ewd-feup-hours']) ||
+		!$_POST['ewd-feup-hours']) {
+		return __('Hours must be a positive number', 'EWD_FEUP');
+	}
+	if (empty($_POST['ewd-feup-event'])) {
+		return __('An event must be specified', 'EWD_FEUP');
+	}
+	$data = array(
+		'User_ID' => $user['User_ID'],
+		'Hours' => $_POST['ewd-feup-hours'],
+		'Verified' => 0,
+		'Event_Name' => $_POST['ewd-feup-event']
+	);
+	if (!empty($_POST['ewd-feup-event-id'])) {
+		$data['Event_ID'] = $_POST['ewd-feup-event-id'];
+	}
+	if ($wpdb->insert($ewd_feup_user_hours_table_name, $data)) {
+		$feup_success = true;
+		return __("Hours entered", 'EWD_FEUP');
+	} else {
+		return __('Error inserting hours, please try again', 'EWD_FEUP');
+	}
+}
+?>

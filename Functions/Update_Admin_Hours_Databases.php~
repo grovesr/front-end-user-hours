@@ -1,0 +1,46 @@
+function Add_EWD_FEUP_User_Hours($hours) {
+	global $wpdb;
+	global $ewd_feup_user_hours_table_name;
+	$wpdb->insert($ewd_feup_user_hours_table_name, $hours);
+	$insert = __("Hours have been added successfully edited.", 'EWD_FEUP');
+	return $insert;
+}
+
+function Verify_EWD_FEUP_Hours($Field_ID) {
+	global $wpdb;
+	global $ewd_feup_user_hours_table_name;
+	$wpdb->update($ewd_feup_user_hours_table_name, array('Verified' => 1),array( 'Field_ID' => $Field_ID));
+	$update = __("Hours have been successfully verified.", 'EWD_FEUP');
+	return $update;
+}
+
+function Mass_Verify_EWD_FEUP_Hours($ids) {
+		if (is_array($ids)) {
+				foreach ($ids as $Field) {
+						if ($Field != "") {
+								Verify_EWD_FEUP_Hours($Field);
+						}
+				}
+		}
+		return __("Hours have been successfully verified.", 'EWD_FEUP');
+}
+
+function Delete_EWD_FEUP_Hours($Field_ID) {
+	global $wpdb;
+	global $ewd_feup_user_hours_table_name;
+	$wpdb->delete($ewd_feup_user_hours_table_name, array( 'Field_ID' => $Field_ID));
+	$update = __("Hours have been successfully verified.", 'EWD_FEUP');
+	return $update;
+}
+
+function Mass_Delete_EWD_FEUP_Hours($ids) {
+		if (is_array($ids)) {
+				foreach ($ids as $Field) {
+						if ($Field != "") {
+								Delete_EWD_FEUP_Hours($Field);
+						}
+				}
+		}
+		return __("Hours have been successfully verified.", 'EWD_FEUP');
+}
+
