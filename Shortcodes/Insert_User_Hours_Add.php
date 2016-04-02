@@ -1,12 +1,10 @@
-<?php 
+<?php
 
 /* Show the user hours formatted for the  */
 
 function User_Hours_Add($atts) {
 
 	global $feup_success, $user_message;
-
-
 
 	$Custom_CSS = get_option("EWD_FEUP_Custom_CSS");
 
@@ -20,7 +18,7 @@ function User_Hours_Add($atts) {
 
 	);
 
-	
+
 
 	// Get the attributes passed by the shortcode, and store them in new variables for processing
 
@@ -64,7 +62,7 @@ function User_Hours_Add($atts) {
 
 		<form action="" method="post" class="pure-form pure-form-aligned">
 
-			<input type="hidden" name="ewd-feup-action" value="hours" />
+			<input type="hidden" name="ewd-feuphrs-action" value="hours" />
 
 			<div class="pure-control-group">
 
@@ -110,11 +108,10 @@ EOT;
 
 	$ret .= EWD_FEUPHRS_Event_Selector();
 
-	
+
 
 	return $ret;
 
 }
 
 add_shortcode("user-hours-add", "User_Hours_Add");
-

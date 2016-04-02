@@ -2,9 +2,8 @@
 function Process_EWD_FEUPHRS_Front_End_Forms() {
 
 		global $user_message;
-error_log(var_export($_POST,true),3,"/var/www/html/ulstercorps/Error.txt");
-        if (isset($_POST['ewd-feup-action'])) {
-		    switch ($_POST['ewd-feup-action']) {
+        if (isset($_POST['ewd-feuphrs-action'])) {
+		    switch ($_POST['ewd-feuphrs-action']) {
 		        case "hours":
                     $user_message['Message'] = Enter_Hours();
                     break;
@@ -18,12 +17,11 @@ function Enter_Hours() {
 	global $ewd_feup_user_hours_table_name;
 	global $ewd_feup_user_table_name;
 	$user = CheckLoginCookie();
-	
 	if (!$user) {
 		return __("Error: Not logged in", 'EWD_FEUP');
 	}
 	if (!is_numeric($_POST['ewd-feup-hours']) ||
-		!$_POST['ewd-feup-hours']) {
+		$_POST['ewd-feup-hours'] <= 0) {
 		return __('Hours must be a positive number', 'EWD_FEUP');
 	}
 	if (empty($_POST['ewd-feup-event'])) {
@@ -33,14 +31,14 @@ function Enter_Hours() {
 	if (empty($_POST['ewd-feup-end-date']) || empty($_POST['ewd-feup-begin-date'])) {
 		return __('Begin and end dates must be specified', 'EWD_FEUP');
 	}
-	
+
 	$beginDate=strtotime($_POST['ewd-feup-begin-date']);
 	$endDate=strtotime($_POST['ewd-feup-end-date']);
-	
+
 	if ($beginDate >  $endDate) {
 		return __('End date must be less than or equal to start date', 'EWD_FEUP');
 	}
-	
+
 	if ($user) {
 		$userId=$wpdb->get_row($wpdb->prepare("SELECT User_ID from $ewd_feup_user_table_name where Username = %s",$user['Username']));
 	}

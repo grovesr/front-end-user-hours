@@ -1,35 +1,20 @@
 <?php
-
-
-
 function EWD_FEUPHRS_Get_Event_Link($Event_ID) {
-
 	global $wpdb;
-
 	$events_table = 'wp_em_events';
-
-
-
 	$slug = $wpdb->get_var("SELECT event_slug from $events_table WHERE event_id = $Event_ID");
-
-
-
 	return site_url().'/?event=' . $slug;
-
 }
 
 function EWD_FEUPHRS_Event_Selector() {
-
 	global $wpdb;
-
 	$events_table = 'wp_em_events';
-
-
-
-	$events = json_encode($wpdb->get_results("SELECT event_id, event_name FROM $events_table WHERE event_start_date < NOW() ORDER BY event_start_date DESC"));
-
-
-
+	$sql =  "SELECT event_id, event_name, ";
+	$sql .= "MAX(event_start_date) AS event_start_date ";
+	$sql .= "FROM $events_table GROUP BY event_name ";
+	$sql .= "ORDER BY event_start_date DESC";
+	error_log($sql . PHP_EOL, 3, "/var/www/html/ulsterc3/Errors.txt");
+	$events = json_encode($wpdb->get_results($sql));
 	return <<<EOT
 
 
@@ -78,7 +63,7 @@ function EWD_FEUPHRS_Event_Selector() {
 
 	}
 
-	</style> 
+	</style>
 
 
 

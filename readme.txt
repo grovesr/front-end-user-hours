@@ -1,7 +1,7 @@
 === Front End Users Functionality Plugin ===
 Requires at least: 3.1
-Tested up to: 3.1
-Stable tag: 0.1
+Tested up to: 4.2
+Stable tag: 0.3
 
 All of the important functionality of your site belongs in this. Describe what it does!
 
@@ -28,4 +28,5 @@ Don't forget this other part too!
 == Changelog ==
 = 0.1 =
 * initial deployment 03/07/15
-
+= 0.3 =
+* major update to allow entry of user hours from dashboard, including to/from spreadsheets.

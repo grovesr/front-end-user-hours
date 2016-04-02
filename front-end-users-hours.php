@@ -8,18 +8,18 @@ before this functionality plugin will work.
 TODO:
     1) enable the user to edit their hour entries in the Hours detail table
     2) enable automatic e-mails to ulstercorps when users have entered hours so we know when we need to verify the hours
-    3) fix the confirmation and password e-mails so that the return address isn't ulsterc3@box7... but is more like ulstercorps@ulstercorps.org
+    3) DONE: fix the confirmation and password e-mails so that the return address isn't ulsterc3@box7... but is more like ulstercorps@ulstercorps.org
     4) add user's previous hours activity names to the top of the events list pull-down for quick re-entry of activity hours
 
 Prerequisite: https://wordpress.org/plugins/front-end-only-users/
 This functionality plugin was developed with Front End Users v1.26
-Version: 0.1
+Version: 0.3
 License: GPL
-Author: Michoel Burger, Rob Groves
+Author: Rob Groves
 Author URI: yoururl
 */
-global $wpdb, $EWD_FEUPHRS_db_version, $ewd_feup_user_hours_table_name;
-$EWD_FEUPHRS_db_version = "0.2.0";
+global $wpdb, $EWD_FEUPHRS_db_version, $ewd_feup_user_hours_table_name, $feup_message;
+$EWD_FEUPHRS_db_version = "0.3.0";
 $ewd_feup_user_hours_table_name = $wpdb->prefix . "EWD_FEUP_User_Hours";
 
 define( 'EWD_FEUPHRS_CD_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -33,8 +33,22 @@ register_activation_hook(__FILE__,'Install_EWD_FEUPHRS');
 register_deactivation_hook( __FILE__, 'Remove_EWD_FEUPHRS' );
 /* included from this file */
 
+if ( is_admin() ){
+	add_action('admin_init', 'Add_EWD_FEUPHRS_Scripts');
+}
+
+function Add_EWD_FEUPHRS_Scripts() {
+	if (isset($_GET['page']) && $_GET['page'] == 'EWD-FEUPHRS-options') {
+		$url_one = plugins_url("front-end-user-hours/js/Admin.js");
+		// wp_register_script('password-strength', $url_five, array('jquery'));
+		wp_enqueue_script('PageSwitch', $url_one, array('jquery'));
+		wp_enqueue_script('jquery-ui-datepicker');
+		wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
+	}
+}
+
 // Process the forms posted by users from the front-end of the plugin
-if (isset($_POST['ewd-feup-action'])) {
+if (isset($_POST['ewd-feuphrs-action'])) {
 	add_action('init', 'Process_EWD_FEUPHRS_Front_End_Forms');
 }
 
@@ -46,7 +60,7 @@ function Remove_EWD_FEUPHRS() {
 /* Creates the admin menu for the contests plugin */
 if ( is_admin() ){
 	add_action('admin_menu', 'EWD_FEUPHRS_Plugin_Menu');
-	add_action('widgets_init', 'Update_EWD_FEUPHRS_Content');
+	add_action('init', 'Update_EWD_FEUPHRS_Content');
 }
 
 function EWD_FEUPHRS_date_scripts() {
@@ -69,7 +83,7 @@ add_action( 'wp_enqueue_scripts', 'EWD_FEUPHRS_date_scripts' );
 
 /*
 // Process the forms posted by users from the front-end of the plugin
-if (isset($_POST['ewd-feup-action'])) {
+if (isset($_POST['ewd-feuphrs-action'])) {
 	add_action('init', 'Process_EWD_FEUPHRS_Front_End_Forms');
 }
 */
