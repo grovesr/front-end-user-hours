@@ -13,7 +13,6 @@ function EWD_FEUPHRS_Event_Selector() {
 	$sql .= "MAX(event_start_date) AS event_start_date ";
 	$sql .= "FROM $events_table GROUP BY event_name ";
 	$sql .= "ORDER BY event_start_date DESC";
-	error_log($sql . PHP_EOL, 3, "/var/www/html/ulsterc3/Errors.txt");
 	$events = json_encode($wpdb->get_results($sql));
 	return <<<EOT
 
