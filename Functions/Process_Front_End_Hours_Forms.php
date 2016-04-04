@@ -77,17 +77,14 @@ function send_unverified_hours_email($user, $data) {
 													$data['Hour_ID']);
 	//send email to admin
 	$subject = "Front End User Hours Need To Be Verified on ".get_bloginfo('name');
-
-	$headers = 'From: ' . $Admin_Email . "\r\n" .
-			'Reply-To: ' . $Admin_Email . "\r\n" .
-			"Cc: $feuphrs_admin \r\n" .
-			'X-Mailer: PHP/' . phpversion();
-
+	$headers = array();
+	$headers[] = "From:$Admin_Email";
+	$headers[] = "Cc:$feuphrs_admin";
 	$message =  "Front End Users Hours user '" . $user['Username'] . "' has entered '" ;
 	$message .= $data['Hours'] . "' volunteer hours for event '" . $data['Event_Name'] . "'. ";
 	$message .= "These hours need to be verified in the admin section.\n\n";
 	$message .= "Click on the link below to go to the admin section and verify ";
 	$message .= " the hours.\n\n";
 	$message .= $verify_url;
-	$mail_success = wp_mail( $Admin_Email, $subject, $message, $headers);
+	$mail_success = wp_mail($Admin_Email, $subject, $message, $headers);
 }
