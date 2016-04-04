@@ -18,9 +18,11 @@ License: GPL
 Author: Rob Groves
 Author URI: yoururl
 */
-global $wpdb, $EWD_FEUPHRS_db_version, $ewd_feup_user_hours_table_name, $feup_message;
+global $wpdb, $EWD_FEUPHRS_db_version, $ewd_feup_user_hours_table_name,
+       $feup_message, $feuphrs_admin;
 $EWD_FEUPHRS_db_version = "0.3.0";
 $ewd_feup_user_hours_table_name = $wpdb->prefix . "EWD_FEUP_User_Hours";
+$feuphrs_admin = "rob@ulstercorps.org";
 
 define( 'EWD_FEUPHRS_CD_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'EWD_FEUPHRS_CD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

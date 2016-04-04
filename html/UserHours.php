@@ -19,7 +19,7 @@
 	if (isset($_GET['OrderBy'])) {
 		$Sql .= "ORDER BY " . $_GET['OrderBy'] . " " . $_GET['Order'] . " ";
 	}	else {
-		$Sql .= "ORDER BY User_ID ";
+		$Sql .= "ORDER BY Hours_Start_Date DESC ";
 	}
 	$Sql .= "LIMIT " . ($Page - 1)*20 . ",20";
 	$myrows = $wpdb->get_results($Sql);

@@ -23,6 +23,9 @@
 		} else {
 			$sortDir = "desc";
 		}
+	} else {
+		$Current_Page_With_Order_By .= "&OrderBy=Unverified&Order=DESC";
+		$sortDir = "asc";
 	}
 function dashboard_header($Page, $sortDir)
 {?>
