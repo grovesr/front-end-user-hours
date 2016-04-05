@@ -149,7 +149,7 @@ function dashboard_header($Page, $sortDir)
 					<?php wp_nonce_field(); ?>
 					<div class="form-field form-required">
 							<input name="Users_Hours_Spreadsheet" id="Users_Hours_Spreadsheet" type="file" value=""/>
-							<p><?php _e("The spreadsheet containing all of the users hours you wish to add. Use the option above to create template with all the necessary columns.", 'EWD_FEUP') ?></p>
+							<p><?php _e("The spreadsheet containing all of the users hours you wish to add. Use the option above to create a template with all the necessary columns.", 'EWD_FEUP') ?></p>
 					</div>
 					<p class="submit"><input type="submit" name="Hours_Import" id="submit" class="button-primary" value="<?php _e('Add Users Hours', 'EWD_FEUP') ?>"  /></p>
 				</form>
