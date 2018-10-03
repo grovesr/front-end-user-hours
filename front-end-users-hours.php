@@ -7,9 +7,12 @@ before this functionality plugin will work.
 == Important Notes ==
 TODO:
     1) enable the user to edit their hour entries in the Hours detail table
-    2) enable automatic e-mails to ulstercorps when users have entered hours so we know when we need to verify the hours
+    2) DONE: enable automatic e-mails to ulstercorps when users have entered hours so we know when we need to verify the hours
     3) DONE: fix the confirmation and password e-mails so that the return address isn't ulsterc3@box7... but is more like ulstercorps@ulstercorps.org
     4) add user's previous hours activity names to the top of the events list pull-down for quick re-entry of activity hours
+    5) Allow sorting of users names in the dashboard
+    6) Allow sorting by event name in the User page
+    7) Enhance FE tables of user hours to allow paging, sorting and editing of unverified hours
 
 Prerequisite: https://wordpress.org/plugins/front-end-only-users/
 This functionality plugin was developed with Front End Users v1.26
