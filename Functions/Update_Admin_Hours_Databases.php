@@ -185,7 +185,7 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 													 "Hours" => "Hours");
 
 	// Get column names
-	$highestColumn = $sheet->getHighestColumn();
+	$highestColumn = $sheet->getHighestDataColumn(1);
 	$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
 	for ($column = 0; $column < $highestColumnIndex; $column++) {
 		$Titles[$column] = trim($sheet->getCellByColumnAndRow($column, 1)->getValue());
@@ -280,4 +280,159 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 	$update = __("Hours added successfully.", 'EWD_FEUP');
 	$user_update = array("Message_Type" => "Update", "Message" => $update);
 	return $user_update;
+}
+
+function Add_FEUPHRS_Users_From_Spreadsheet($Excel_File_Name) {
+    // This function replaces Add_FEUP_Users_From_Spreadsheet from the FEUP plugin
+    // This version is a bit more robust and doesn't add users more than once
+    global $wpdb;
+    global $ewd_feup_user_table_name;
+    global $ewd_feup_user_fields_table_name;
+    global $ewd_feup_levels_table_name;
+    global $ewd_feup_fields_table_name;
+    global $EWD_FEUP_Full_Version;
+    
+    $Sign_Up_Email = get_option("EWD_FEUP_Sign_Up_Email");
+    $Use_Crypt = get_option("EWD_FEUP_Use_Crypt");
+    $Username_Is_Email = get_option("EWD_FEUP_Username_Is_Email");
+    $Create_WordPress_Users = get_option("EWD_FEUP_Create_WordPress_Users");
+    
+    if (!wp_verify_nonce($_POST['_wpnonce'])) {return __("There has been a validation error.", 'front-end-only-users');}
+    
+    $Excel_URL = '../wp-content/plugins/front-end-user-hours/user-sheets/' . $Excel_File_Name;
+    
+    // Uses the PHPExcel class to simplify the file parsing process
+    include_once('../wp-content/plugins/front-end-only-users/PHPExcel/Classes/PHPExcel.php');
+    
+    // Build the workbook object out of the uploaded spredsheet
+    $inputFileType = PHPExcel_IOFactory::identify($Excel_URL);
+    $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+    $objWorkBook = $objReader->load($Excel_URL);
+    
+    // Create a worksheet object out of the product sheet in the workbook
+    $sheet = $objWorkBook->getActiveSheet();
+    
+    //List of fields that can be accepted via upload
+    $Allowed_Fields = array ("Username" => "Username", "Password" => "User_Password", "Level" => "Level_Name", "Email Confirmed" => "User_Email_Confirmed", "Admin Approved" => "User_Admin_Approved");
+    $Custom_Fields_From_DB = $wpdb->get_results("SELECT Field_ID, Field_Name, Field_Options, Field_Type FROM $ewd_feup_fields_table_name");
+    if (is_array($Custom_Fields_From_DB)) {
+        foreach ($Custom_Fields_From_DB as $Custom_Field_From_DB) {
+            $Allowable_Custom_Fields[$Custom_Field_From_DB->Field_Name] = $Custom_Field_From_DB->Field_Name;
+            $Field_IDs[$Custom_Field_From_DB->Field_Name] = $Custom_Field_From_DB->Field_ID;
+        }
+    }
+    
+    // Get column names
+    $highestColumn = $sheet->getHighestDataColumn(1);
+    $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+    for ($column = 0; $column < $highestColumnIndex; $column++) {
+        $Titles[$column] = trim($sheet->getCellByColumnAndRow($column, 1)->getValue());
+    }
+    
+    // Make sure all columns are acceptable based on the acceptable fields above
+    foreach ($Titles as $key => $Title) {
+        if ($Title != "" and !array_key_exists($Title, $Allowed_Fields) and !array_key_exists($Title, $Allowable_Custom_Fields)) {
+            $Error = __("You have a column which is not recognized: ", 'front-end-only-users') . $Title . __(". <br>Please make sure that the column names match the user field labels exactly.", 'front-end-only-users');
+            $user_update = array("Message_Type" => "Error", "Message" => $Error);
+            return $user_update;
+        }
+        if ($Title == "") {
+            $Error = __("You have a blank column that has been edited.<br>Please delete that column and re-upload your spreadsheet.", 'front-end-only-users');
+            $user_update = array("Message_Type" => "Error", "Message" => $Error);
+            return $user_update;
+        }
+        if (is_array($Allowable_Custom_Fields)) {
+            if (array_key_exists($Title, $Allowable_Custom_Fields)) {
+                $Custom_Fields[$key] = $Title;
+                unset($Titles[$key]);
+            }
+        }
+    }
+    if (!is_array($Custom_Fields)) {$Custom_Fields = array();}
+    
+    // Put the spreadsheet data into a multi-dimensional array to facilitate processing
+    $highestRow = $sheet->getHighestRow();
+    for ($row = 2; $row <= $highestRow; $row++) {
+        for ($column = 0; $column < $highestColumnIndex; $column++) {
+            $Data[$row][$column] = $sheet->getCellByColumnAndRow($column, $row)->getValue();
+        }
+    }
+    
+    // Create an array of the levels currently in the FEUP database,
+    // with Level_Name as the key and Level_ID as the value
+    $Levels_From_DB = $wpdb->get_results("SELECT * FROM $ewd_feup_levels_table_name");
+    foreach ($Levels_From_DB as $Level) {
+        $Levels[$Level->Level_Name] = $Level->Level_ID;
+    }
+    
+    // Creates an array of the field names which are going to be inserted into the database
+    // and then turns that array into a string so that it can be used in the query
+    for ($column = 0; $column < $highestColumnIndex; $column++) {
+        if ($Allowed_Fields[$Titles[$column]] != "Level_Name" and !array_key_exists($column, $Custom_Fields)) {$Fields[] = $Allowed_Fields[$Titles[$column]];}
+        if ($Allowed_Fields[$Titles[$column]] == "Level_Name") {$Level_Column = $column; $Fields[] = "Level_ID";}
+        if ($Allowed_Fields[$Titles[$column]] == "User_Password") {$Password_Column = $column;}
+        if ($Allowed_Fields[$Titles[$column]] == "Username") {$Username_Column = $column;}
+    }
+    $FieldsString = implode(",", $Fields);
+    
+    $ShowStatus = "Show";
+    $Today = date("Y-m-d H:i:s");
+    $wpdb->show_errors();
+    
+    // Create the query to insert the users one at a time into the database and then run it
+    foreach ($Data as $User) {
+        
+        // Create an array of the values that are being inserted for each user
+        foreach ($User as $Col_Index => $Value) {
+            if ((!isset($Password_Column) or $Password_Column != $Col_Index) and (!isset($Level_Column) or $Level_Column != $Col_Index) and !array_key_exists($Col_Index, $Custom_Fields)) {$Values[] = esc_sql($Value);}
+            if (isset($Level_Column) and $Level_Column == $Col_Index) {
+                $Values[] = $Levels[$Value];
+            }
+            if (isset($Password_Column) and $Password_Column == $Col_Index) {
+                if($Use_Crypt == "Yes") {
+                    $Values[] = Generate_Password($Value);
+                } else {
+                    $Values[] = sha1(md5($Value.$Salt));
+                }
+                $Password = $Value;
+            }
+            if (isset($Username_Column) and $Username_Column == $Col_Index) {
+                $Username = $Value;
+            }
+            if (array_key_exists($Col_Index, $Custom_Fields)) {
+                $Custom_Fields_To_Insert[$Custom_Fields[$Col_Index]] = $Value;
+            }
+        }
+        $User_Exists = $wpdb->get_var(
+            $wpdb->prepare("SELECT COUNT(*) from $ewd_feup_user_table_name WHERE Username = '".esc_sql($Username)."'")
+            );
+        if ($User_Exists == "0") {
+            $ValuesString = implode("','", $Values);
+            $wpdb->query(
+                $wpdb->prepare("INSERT INTO $ewd_feup_user_table_name (" . $FieldsString . ", User_Date_Created) VALUES ('" . $ValuesString . "','%s')", $Today)
+                );
+            
+            $User_ID = $wpdb->insert_id;
+            if ($Sign_Up_Email == "Yes") {EWD_FEUP_Send_Email(array(), array(), $User_ID);}
+            
+            if ($Create_WordPress_Users == "Yes" and $Username_Is_Email == "Yes") {$WP_ID = EWD_FEUP_Add_WP_User($User_ID, array('Username' => $Username, 'Password' => $Password));}
+            
+            if (is_array($Custom_Fields_To_Insert)) {
+                foreach ($Custom_Fields_To_Insert as $Field => $Value) {
+                    $Trimmed_Field = trim($Field);
+                    $Field_ID = $Field_IDs[$Trimmed_Field];
+                    $wpdb->query($wpdb->prepare("INSERT INTO $ewd_feup_user_fields_table_name (Field_ID, User_ID, Field_Name, Field_Value, User_Field_Date_Created) VALUES (%d, %d, %s, %s, %s)", $Field_ID, $User_ID, $Trimmed_Field, $Value, $Today));
+                }
+            }
+            unset($ValuesString);
+            unset($Custom_Fields_To_Insert);
+        }
+        unset($Values);
+        unset($User_ID);
+        
+    }
+    
+    $message = __("Users added successfully.", 'front-end-only-users');
+    $user_update = array("Message_Type" => "Update", "Message" => $message);
+    return $user_update;
 }

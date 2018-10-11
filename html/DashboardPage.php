@@ -12,8 +12,11 @@
 																			$ewd_feup_user_hours_table_name);
 	$userRows = $wpdb->get_results($Sql);
 	$num_rows = $wpdb->num_rows;
-	$Sql=EWD_FEUP_Query_User_Hours_Count($ewd_feup_user_hours_table_name);
-	$Number_of_Pages = ceil($wpdb->get_var($Sql)/20);
+	$Sql = EWD_FEUP_Query_Users_Count($ewd_feup_user_table_name);
+	$UsersCount = $wpdb->get_var($Sql);
+	$Sql = EWD_FEUP_Query_User_Hours_Count($ewd_feup_user_hours_table_name);
+	$UsersWithHoursCount = $wpdb->get_var($Sql);
+	$Number_of_Pages = ceil($UsersWithHoursCount/20);
 	$Current_Page_With_Order_By = "admin.php?page=EWD-FEUPHRS-options&DisplayPage=Dashboard";
 	$sortDir = "asc";
 	if (isset($_GET['OrderBy'])) {
@@ -66,6 +69,8 @@ function dashboard_header($Page, $sortDir)
 <?php wp_nonce_field(); ?>
 <?php wp_referer_field(); ?>
 <form action="admin.php?page=EWD-FEUPHRS-options&Action=EWD_FEUPHRS_MassEditUserHours" method="post">
+<span class="displaying-num"><?php echo $UsersWithHoursCount; ?> <?php _e("users with recorded hours out of a total of  ", 'front-end-only-users') ?></span>
+<span class="displaying-num"><?php echo $UsersCount; ?> <?php _e("users", 'front-end-only-users') ?></span>
 <?php  table_nav($Number_of_Pages, $Page, $Current_Page_With_Order_By, TRUE);?>
 <table class="wp-list-table widefat fixed tags sorttable" cellspacing="0">
 	<thead>
@@ -152,6 +157,18 @@ function dashboard_header($Page, $sortDir)
 							<p><?php _e("The spreadsheet containing all of the users hours you wish to add. Use the option above to create a template with all the necessary columns.", 'EWD_FEUP') ?></p>
 					</div>
 					<p class="submit"><input type="submit" name="Hours_Import" id="submit" class="button-primary" value="<?php _e('Add Users Hours', 'EWD_FEUP') ?>"  /></p>
+				</form>
+			</div>
+			<hr>
+			<h3><?php _e("Add Users from Spreadsheet", 'EWD_FEUP') ?></h3>
+			<div class="wrap">
+				<form id="EWD_FEUPHRS_AddUsersFromSpreadsheet" method="post" action="admin.php?page=EWD-FEUPHRS-options&Action=EWD_FEUPHRS_AddUsersFromSpreadsheet&DisplayPage=Dashboard" class="validate" enctype="multipart/form-data">
+					<?php wp_nonce_field(); ?>
+					<div class="form-field form-required">
+					        <input name="Users_Spreadsheet" id="Users_Spreadsheet" type="file" value=""/>
+							<p><?php _e("Spreadsheet containing users you would like to add.", 'EWD_FEUP') ?></p>
+					</div>
+					<p class="submit"><input type="submit" name="Users_Import" id="Users_Import" class="button-primary" value="<?php _e('Import Users', 'EWD_FEUP') ?>"  /></p>
 				</form>
 			</div>
 		</div>

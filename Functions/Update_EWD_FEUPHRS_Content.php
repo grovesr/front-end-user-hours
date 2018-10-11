@@ -68,6 +68,10 @@ function Update_EWD_FEUPHRS_Content() {
 			if (isset($_POST['Hours_Import'])) {
 				$feup_message = EWD_FEUPHRS_Import_Users_Hours_From_Excel();
 			}
+		case 'EWD_FEUPHRS_AddUsersFromSpreadsheet':
+		    if (isset($_POST['Users_Import'])) {
+		        $feup_message = EWD_FEUPHRS_Import_Users_From_Excel();
+		    }
 		case 'EWD_FEUPHRS_ExportUsersHoursSpreadsheetTemplate':
 			if (isset($_POST['User_Hours_Template'])) {
 				$feup_message['Message_Type']='Update';

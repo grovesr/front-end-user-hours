@@ -258,3 +258,74 @@ function EWD_FEUPHRS_Import_Users_Hours_From_Excel() {
 			return $output_error;
 	}
 }
+
+function EWD_FEUPHRS_Import_Users_From_Excel() {
+    global $wpdb;
+    global $ewd_feup_user_table_name;
+    include_once('../wp-content/plugins/front-end-only-users/PHPExcel/Classes/PHPExcel.php');
+    // Instantiate a new PHPExcel object
+    if (!is_user_logged_in()) {exit();}
+    /* Test if there is an error with the uploaded spreadsheet and return that error if there is */
+    if (!empty($_FILES['Users_Spreadsheet']['error']) &
+        $_FILES['Users_Spreadsheet']['error'] != 0 ) {
+            switch($_FILES['Users_Spreadsheet']['error'])	{
+                case '1':
+                    $error = __('The uploaded file exceeds the upload_max_filesize directive in php.ini', 'EWD_FEUP');
+                    break;
+                case '2':
+                    $error = __('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form', 'EWD_FEUP');
+                    break;
+                case '3':
+                    $error = __('The uploaded file was only partially uploaded', 'EWD_FEUP');
+                    break;
+                case '4':
+                    $error = __('No file was uploaded.', 'EWD_FEUP');
+                    break;
+                    
+                case '6':
+                    $error = __('Missing a temporary folder', 'EWD_FEUP');
+                    break;
+                case '7':
+                    $error = __('Failed to write file to disk', 'EWD_FEUP');
+                    break;
+                case '8':
+                    $error = __('File upload stopped by extension', 'EWD_FEUP');
+                    break;
+                case '999':
+                default:
+                    $error = __('No error code avaiable', 'EWD_FEUP');
+            }
+        }	elseif (empty($_FILES['Users_Spreadsheet']['tmp_name']) ||
+            $_FILES['Users_Spreadsheet']['tmp_name'] == 'none') {
+                /* Make sure that the file exists */
+                $error = __('No file was uploaded here..', 'EWD_FEUP');
+        }
+        /* Check that it is a .xls or .xlsx file */
+        if(!preg_match("/\.(xls.?)$/", $_FILES['Users_Spreadsheet']['name']) and
+            !preg_match("/\.(csv.?)$/", $_FILES['Users_Spreadsheet']['name'])) {
+                $error = __('File must be .csv, .xls or .xlsx', 'EWD_FEUP');
+            } else {
+                /* Move the file and store the URL to pass it onwards*/
+                $msg .= $_FILES['Users_Spreadsheet']['name'];
+                //for security reason, we force to remove all uploaded file
+                $target_path = ABSPATH . 'wp-content/plugins/front-end-user-hours/user-sheets/';
+                $target_path = $target_path . basename( $_FILES['Users_Spreadsheet']['name']);
+                if (!move_uploaded_file($_FILES['Users_Spreadsheet']['tmp_name'], $target_path)) {
+                    //if (!$upload = wp_upload_bits($_FILES["Item_Image"]["name"], null, file_get_contents($_FILES["Item_Image"]["tmp_name"]))) {
+                    $error .= "There was an error uploading the file, please try again!";
+                }
+                else {
+                    $Excel_File_Name = basename( $_FILES['Users_Spreadsheet']['name']);
+                }
+            }
+            
+            /* Pass the data to the appropriate function in Update_Admin_Databases.php to create the users */
+            if (!isset($error)) {
+                $user_update = Add_FEUPHRS_Users_From_Spreadsheet($Excel_File_Name);
+                return $user_update;
+            }
+            else {
+                $output_error = array("Message_Type" => "Error", "Message" => $error);
+                return $output_error;
+            }
+}

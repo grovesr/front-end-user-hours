@@ -25,6 +25,11 @@ function EWD_FEUP_Query_User_Hours_Count($user_hours_table_name) {
 	return $Sql;
 };
 
+function EWD_FEUP_Query_Users_Count($users_table_name) {
+    $Sql = "SELECT COUNT(DISTINCT User_ID) FROM $users_table_name ";
+    return $Sql;
+};
+
 function EWD_FEUP_Query_Users_Hours($user_table_name,$user_hours_table_name) {
 	$Sql =  "SELECT $user_table_name.User_ID, $user_table_name.Username, ";
 	$Sql .= "$user_hours_table_name.Event_ID, $user_hours_table_name.Event_Name, ";
