@@ -39,13 +39,12 @@ function EWD_FEUPHRS_Export_Users_Hours_To_Excel() {
 	}
 	// Print out the regular order field labels
 	$sheet->setCellValue("A1", "Username");
-	$sheet->setCellValue("B1", "User_ID");
-	$sheet->setCellValue("C1", "Event Name");
-	$sheet->setCellValue("D1", "Event ID");
-	$sheet->setCellValue("E1", "Start Date");
-	$sheet->setCellValue("F1", "End Date");
-	$sheet->setCellValue("G1", "Hours");
-	$sheet->setCellValue("H1", "Verified");
+	$sheet->setCellValue("B1", "Event Name");
+	$sheet->setCellValue("C1", "Event ID");
+	$sheet->setCellValue("D1", "Start Date");
+	$sheet->setCellValue("E1", "End Date");
+	$sheet->setCellValue("F1", "Hours");
+	$sheet->setCellValue("G1", "Verified");
 
 
 
@@ -56,13 +55,12 @@ function EWD_FEUPHRS_Export_Users_Hours_To_Excel() {
 	foreach ($Users as $User)
 	{
     	$sheet->setCellValue("A" . $rowCount, $User->Username);
-    	$sheet->setCellValue("B" . $rowCount, $User->User_ID);
-			$sheet->setCellValue("C" . $rowCount, $User->Event_Name);
-			$sheet->setCellValue("D" . $rowCount, $User->Event_ID);
-			$sheet->setCellValue("E" . $rowCount, $User->Hours_Start_Date);
-			$sheet->setCellValue("F" . $rowCount, $User->Hours_Stop_Date);
-			$sheet->setCellValue("G" . $rowCount, $User->Hours);
-			$sheet->setCellValue("H" . $rowCount, $User->Verified);
+			$sheet->setCellValue("B" . $rowCount, $User->Event_Name);
+			$sheet->setCellValue("C" . $rowCount, $User->Event_ID);
+			$sheet->setCellValue("D" . $rowCount, $User->Hours_Start_Date);
+			$sheet->setCellValue("E" . $rowCount, $User->Hours_Stop_Date);
+			$sheet->setCellValue("F" . $rowCount, $User->Hours);
+			$sheet->setCellValue("G" . $rowCount, $User->Verified);
     	$rowCount++;
 	}
 
@@ -94,11 +92,10 @@ function EWD_FEUPHRS_Export_Users_Template_To_Excel() {
 	}
 	// Print out the regular order field labels
 	$importSheet->setCellValue("A1", "Username");
-	$importSheet->setCellValue("B1", "User_ID");
-	$importSheet->setCellValue("C1", "Event Name");
-	$importSheet->setCellValue("D1", "Start Date");
-	$importSheet->setCellValue("E1", "End Date");
-	$importSheet->setCellValue("F1", "Hours");
+	$importSheet->setCellValue("B1", "Event Name");
+	$importSheet->setCellValue("C1", "Start Date");
+	$importSheet->setCellValue("D1", "End Date");
+	$importSheet->setCellValue("E1", "Hours");
 
 	//start while loop to get data
 	$rowCount = 2;
@@ -107,10 +104,9 @@ function EWD_FEUPHRS_Export_Users_Template_To_Excel() {
 	foreach ($Users as $User)
 	{
     	$importSheet->setCellValue("A" . $rowCount, $User->Username);
-    	$importSheet->setCellValue("B" . $rowCount, $User->User_ID);
+			$importSheet->setCellValue("C" . $rowCount, $Today);
 			$importSheet->setCellValue("D" . $rowCount, $Today);
-			$importSheet->setCellValue("E" . $rowCount, $Today);
-			$importSheet->setCellValue("F" . $rowCount, 0);
+			$importSheet->setCellValue("E" . $rowCount, 0);
     	$rowCount++;
 	}
 

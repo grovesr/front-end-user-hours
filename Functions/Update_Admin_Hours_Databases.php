@@ -178,11 +178,10 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 
 	//List of fields that can be accepted via upload
 	$Allowed_Fields = array ("Username" => "Username",
-													 "User_ID" => "User_ID",
-													 "Event Name" => "Event_Name",
-													 "Start Date" => "Hours_Start_Date",
-													 "End Date" => "Hours_Stop_Date",
-													 "Hours" => "Hours");
+							 "Event Name" => "Event_Name",
+							 "Start Date" => "Hours_Start_Date",
+							 "End Date" => "Hours_Stop_Date",
+							 "Hours" => "Hours");
 
 	// Get column names
 	$highestColumn = $sheet->getHighestDataColumn(1);
@@ -218,15 +217,18 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 			$Data[$row][$column] = $sheet->getCellByColumnAndRow($column, $row)->getValue();
 		}
 	}
-	$sql =  "SELECT event_id, event_name, ";
-	$sql .= "MAX(event_start_date) AS event_start_date ";
-	$sql .= "FROM $events_table GROUP BY event_name";
+	$sql = "SELECT LOWER($events_table.event_name) AS event_name, $events_table.event_id, $events_table.event_start_date
+	FROM $events_table ";
+	$sql .= "INNER JOIN ";
+	$sql .= "(SELECT LOWER(event_name) AS event_name, MAX(event_start_date) AS maxdate FROM wp_em_events GROUP BY LOWER(event_name)) maxd
+	ON ";
+	$sql .= "($events_table.event_name=maxd.event_name AND $events_table.event_start_date=maxd.maxdate)";
 	$eventsFromDb = $wpdb->get_results($sql);
 	$Events = array();
 	// Create an array of the events currently in the Events Manager database,
 	// with Event_name as the key and Level_ID as the value
 	foreach ($eventsFromDb as $event) {
-		$Events[strtolower(trim($event->event_name))] = $event->event_id;
+		$Events[trim($event->event_name)] = $event->event_id;
 	}
 	// index to get certain info out of $Data since we don't know the column order
 	$usernameIndex = array_search('Username', $Titles);
@@ -237,16 +239,22 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 	// $wpdb->show_errors();
 	foreach ($Data as $User) {
 		if ($User[$hoursIndex] == "0" or empty($User[$hoursIndex])) {
-			// skip this enbtry if the hours are 0 or empty
+			// skip this entry if the hours are 0 or empty
 			continue;
 		}
 		// Create an array of the values that are being inserted for each user
 		if(array_key_exists(strtolower(trim($User[$eventIndex])), $Events)) {
-			$eventId = $Events[strtolower(trim($User[$eventIndex]))];
+			$eventId = "'".$Events[strtolower(trim($User[$eventIndex]))]."'";
 		} else {
 			$eventId = 'NULL';
 		}
 		$username = trim($User[$usernameIndex]);
+		$sql = "SELECT DISTINCT User_ID from $ewd_feup_user_table_name WHERE Username = '$username'";
+		$userid = $wpdb->get_var($sql);
+		if($userid == "") {
+		    // user doesn't exist skip
+		    continue;
+		}
 		$startDate = date_create_from_format('m-d-Y', trim($User[$startDateIndex]));
 		if ($startDate === FALSE) {
 			$update = __(trim($User[$startDateIndex]) . "Inavlid date format for Start Date in row for user '$username'.  Should be in mm-dd-yyyy format.", 'EWD_FEUP');
@@ -268,11 +276,13 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 				$colNames[$colIndex] = $Allowed_Fields[$Titles[$colIndex]];
 			}
 		}
+		$colNames[] = "User_ID";
+		$values[] = $userid;
 		$colNamesString = implode(",", $colNames);
 		$valuesString = implode("','", $values);
 		$sql =  "INSERT INTO $ewd_feup_user_hours_table_name ";
 		$sql .= "(" . $colNamesString . ", Event_ID, Verified) ";
-		$sql .= "VALUES ('" . $valuesString . "', '$eventId', '1')";
+		$sql .= "VALUES ('" . $valuesString . "', $eventId, '1')";
 		$wpdb->query($sql);
 		unset($values);
 		unset($valuesString);

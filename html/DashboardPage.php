@@ -8,8 +8,8 @@
 		$Page = 1;
 	}
 	$Sql=EWD_FEUP_Query_User_Hours_Page($_GET,
-																			$ewd_feup_user_table_name,
-																			$ewd_feup_user_hours_table_name);
+										$ewd_feup_user_table_name,
+										$ewd_feup_user_hours_table_name);
 	$userRows = $wpdb->get_results($Sql);
 	$num_rows = $wpdb->num_rows;
 	$Sql = EWD_FEUP_Query_Users_Count($ewd_feup_user_table_name);
@@ -19,16 +19,19 @@
 	$Number_of_Pages = ceil($UsersWithHoursCount/20);
 	$Current_Page_With_Order_By = "admin.php?page=EWD-FEUPHRS-options&DisplayPage=Dashboard";
 	$sortDir = "asc";
-	if (isset($_GET['OrderBy'])) {
-		$Current_Page_With_Order_By .= "&OrderBy=" .$_GET['OrderBy'] . "&Order=" . $_GET['Order'];
-		if ($_GET['Order'] == 'DESC') {
-			$sortDir = "asc";
-		} else {
-			$sortDir = "desc";
-		}
+	if (isset($_GET['Order'])) {
+	    if ($_GET['Order'] == 'DESC') {
+	        $sortDir = "asc";
+	        $sqlSortDir = 'DESC';
+	    } else {
+	        $sortDir = "desc";
+	        $sqlSortDir = 'ASC';
+	    }
+	}
+	if (isset($_GET['OrderBy'])) {    
+		$Current_Page_With_Order_By .= "&OrderBy=" .$_GET['OrderBy'] . "&Order=$sqlSortDir";
 	} else {
-		$Current_Page_With_Order_By .= "&OrderBy=Unverified&Order=DESC";
-		$sortDir = "asc";
+		$Current_Page_With_Order_By .= "&OrderBy=Username&Order=ASC";
 	}
 function dashboard_header($Page, $sortDir)
 {?>
@@ -37,12 +40,14 @@ function dashboard_header($Page, $sortDir)
 			<input type="checkbox" />
 		</th>
 		<th scope='col' id='user-name' class='manage-column column-name sortable <?php echo $sortDir; ?>'  style="">
-			<?php if (!isset($_GET['OrderBy']) or
-								(isset($_GET['OrderBy']) and $_GET['OrderBy'] == "Username" and $_GET['Order'] == "ASC")) {
+			<?php 
+			if (!isset($_GET['OrderBy']) or
+					  (isset($_GET['OrderBy']) and $_GET['OrderBy'] == "Username" and $_GET['Order'] == "ASC")) {
 							echo "<a href='admin.php?page=EWD-FEUPHRS-options&DisplayPage=Dashboard&OrderBy=Username&Order=DESC&Page=$Page'>";
 						} else {
 							echo "<a href='admin.php?page=EWD-FEUPHRS-options&DisplayPage=Dashboard&OrderBy=Username&Order=ASC&Page=$Page'>";
-						} ?>
+						} 
+            ?>
 				<span><?php _e("Username", 'EWD_FEUP') ?></span>
 				<span class="sorting-indicator"></span>
 			</a>
@@ -51,14 +56,7 @@ function dashboard_header($Page, $sortDir)
 				<span><?php _e("Verified Hours", 'EWD_FEUP') ?></span>
 		</th>
 		<th scope='col' id='unverified-hours' class='manage-column column-type sortable <?php echo $sortDir; ?>'  style="">
-			<?php if (!isset($_GET['OrderBy']) or
-							(isset($_GET['OrderBy']) and $_GET['OrderBy'] == "Unverified" and $_GET['Order'] == "ASC")) {
-						echo "<a href='admin.php?page=EWD-FEUPHRS-options&DisplayPage=Dashboard&OrderBy=Unverified&Order=DESC&Page=$Page'>";
-					} else {
-						echo "<a href='admin.php?page=EWD-FEUPHRS-options&DisplayPage=Dashboard&OrderBy=Unverified&Order=ASC&Page=$Page'>";
-					} ?>
 				<span><?php _e("Unverified Hours", 'EWD_FEUP') ?></span>
-				<span class="sorting-indicator"></span>
 		</th>
 	</tr>
 	<?php

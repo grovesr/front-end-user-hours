@@ -1,0 +1,36 @@
+Set in  root WP php.ini: max_execution_time 115 (this is less than the bluehost nginx script execution timelimit of 120 seconds
+ but more than the default 30 seconds. This allows us the ability to add 100 users at a time from a spreadsheat
+
+On ubuntu16.04 had to do: sudo apt-get install php7.0-zip
+
+To add users without adding duplicate users, I had to alter the front-end-only-users plugin Update_Admin_Databases.php function:
+  I just ended up folding the user add function into the front-end-user-hours plugin so I could fix it without worrying about the FEUP authors
+
+These are what can be set in the user add spreadsheet:
+
+Allowed_Fields:
+"Username"        => "Username"
+"Password"        => "User_Password"
+"Level"           => "Level_Name"
+"Email Confirmed" => "User_Email_Confirmed"
+"Admin Approved"  => "User_Admin_Approved"
+
+Allowable_Custom_Fields:
+"First Name"      => "First Name"
+"Last Name"       => "Last Name"
+"Phone 1"         => "Phone 1"
+"Phone 2 (cell)"  => "Phone 2 (cell)"
+"Address"         => "Address"
+"City"            => "City"
+"Zip Code"        => "Zip Code"
+"Interests"       => "Interests"
+"Skillset"        => "Skillset"
+
+Levels:
+"Regular User"    => 1
+
+Interests: 
+UlsterCorps U-Team,  UlsterCorps Glean Team,  UlsterCorps Tech Team, Affordable/Transitional Housing, Arts, Disability Services, Education/Mentoring, Emergency Services, Food Pantries + Soup Kitchens, Government, Green Energy/Sustainability, Health Services, Legal Services, Libraries, Senior Services, Wildlife & Animal Welfare, Youth Services, Opportunities for Groups, Opportunities for Youth
+
+Skillsets:
+ Artists, Computer Skills , Construction, Cooking, Farming/Gardening, Fundraising, Grantwriting, Graphic Design, Heavy lifting, Media/PR , Mediation/Legal, Mentorship, Research, Spanish Speakers, Special Event Planning, Transportation, Tutoring, Videography/ Photography

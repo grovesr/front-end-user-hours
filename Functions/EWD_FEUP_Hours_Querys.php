@@ -14,9 +14,9 @@ function EWD_FEUP_Query_User_Hours_Page($get,$user_table_name,$user_hours_table_
 	if (isset($get['OrderBy']) and isset($get['Order']) and $get['DisplayPage'] == "Dashboard") {
 		$Sql .= "ORDER BY " . $get['OrderBy']  ." ". $get['Order'] . " ";
 	}	else {
-		$Sql .= "ORDER BY  Username";
+		$Sql .= "ORDER BY  Username ";
 	}
-	$Sql .= " LIMIT " . ($Page - 1)*20 . ",20";
+	$Sql .= " LIMIT " . (($Page - 1)*20 + 1) . ",20";
 	return $Sql;
 };
 

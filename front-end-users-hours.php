@@ -16,14 +16,14 @@ TODO:
 
 Prerequisite: https://wordpress.org/plugins/front-end-only-users/
 This functionality plugin was developed with Front End Users v1.26
-Version: 0.3
+Version: 0.4
 License: GPL
 Author: Rob Groves
 Author URI: yoururl
 */
 global $wpdb, $EWD_FEUPHRS_db_version, $ewd_feup_user_hours_table_name,
        $feup_message, $feuphrs_admin;
-$EWD_FEUPHRS_db_version = "0.3.0";
+$EWD_FEUPHRS_db_version = "0.4.0";
 $ewd_feup_user_hours_table_name = $wpdb->prefix . "EWD_FEUP_User_Hours";
 $feuphrs_admin = "rob@ulstercorps.org";
 
@@ -66,6 +66,7 @@ function Remove_EWD_FEUPHRS() {
 if ( is_admin() ){
 	add_action('admin_menu', 'EWD_FEUPHRS_Plugin_Menu');
 	add_action('init', 'Update_EWD_FEUPHRS_Content');
+	add_action('admin_notices', 'EWD_FEUPHRS_Error_Notices');
 }
 
 function EWD_FEUPHRS_date_scripts() {
@@ -111,6 +112,7 @@ include "Functions/Update_EWD_FEUPHRS_Content.php";
 include "Functions/Update_EWD_FEUPHRS_Tables.php";
 include "Functions/EWD_FEUP_Hours_Querys.php";
 include "Functions/PublicFunctionsHours.php";
+include "Functions/Error_Notices.php";
 include "Shortcodes/Insert_User_Hours_Add.php";
 include "Shortcodes/Insert_User_Hours_Details.php";
 include "Shortcodes/Insert_User_Hours_Summary.php";
@@ -121,3 +123,7 @@ include "Shortcodes/Insert_User_First_Last_If_Logged_In.php";
 if (get_option('EWD_FEUPHRS_DB_Version') != $EWD_FEUPHRS_db_version) {
 	Update_EWD_FEUPHRS_Tables();
 }
+
+if ( !is_plugin_active( 'front-end-only-users/Main.php' ) ) {
+    $feup_message = array("Message_Type" => "Error", "Message" => "Front End Only Users Plugin is not activated! It is required to use the Front End User Hours Plugin.");
+} 
