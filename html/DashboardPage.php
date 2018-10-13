@@ -76,7 +76,7 @@ function dashboard_header($Page, $sortDir)
 	<input type="search" id="post-search-input" name="UserSearchValue" value="">
 	<input type="submit" name="" id="search-submit" class="button" value="Search Usernames">
 </p>
-<span class="displaying-num"><?php echo $UsersWithHoursCount; ?> <?php _e("users with recorded hours out of a total of  ", 'front-end-only-users') ?></span>
+<span class="displaying-num"><?php echo $num_rows; ?> <?php _e("users with recorded hours out of a total of  ", 'front-end-only-users') ?></span>
 <span class="displaying-num"><?php echo $UsersCount; ?> <?php _e("users", 'front-end-only-users') ?></span>
 <?php  table_nav($Number_of_Pages, $Page, $Current_Page_With_Order_By, TRUE);?>
 <table class="wp-list-table widefat fixed tags sorttable" cellspacing="0">
