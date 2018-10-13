@@ -6,6 +6,47 @@ On ubuntu16.04 had to do: sudo apt-get install php7.0-zip
 To add users without adding duplicate users, I had to alter the front-end-only-users plugin Update_Admin_Databases.php function:
   I just ended up folding the user add function into the front-end-user-hours plugin so I could fix it without worrying about the FEUP authors
 
+
+
+Instructions for adding users and their hours based on the VGF spreadsheet provided by Beth:
+1) Save original spreadsheet from Beth and rename it with "Import Master" in the name
+   the spreadshet should look something like (Use the Volunteers tab):
+     GoogleDrive/Ulster Corps/Volunteer Hours/Adding Users and Hours From a VGF Spreadsheet/VGF Volunteer Tracking 2017.xlsx
+2) Rename the First Name and Last Name columns to "Old First Name" and "Old Last Name"
+3) Copy in the formulas to create new First Name, Last Name and Username colunmns in the new Master spreadsheet from:
+     GoogleDrive/Ulster Corps/Volunteer Hours/Adding Users and Hours From a VGF Spreadsheet/VGF Volunteer Tracking Import Master 2017.xlsx
+4) Create a new spreadsheet:
+     GoogleDrive/Ulster Corps/Volunteer Hours/Adding Users and Hours From a VGF Spreadsheet/VGF_Volunteers_Import_YEAR.xlsx
+5)  Copy the First Name, Last Name and Username columns from the Import Master into the new VGF_Volunteers_Import_YEAR.xlsx spreadsheet
+    Make sure to Paste Special and only take text and numbers, no formulas
+6) Repeat steps 4 and 5 with another new spreadsheet:
+    GoogleDrive/Ulster Corps/Volunteer Hours/Adding Users and Hours From a VGF Spreadsheet/VGF_Volunteer_Hours_Import_YEAR.xlsx
+7) To finish creating the user add spreadsheet:
+     a) add columns "Password", "Level", "Admin Approved"
+     b) fill these columns with "volunteer", "Regular User", "Yes" respectively for all rows
+8) To finish creating the user hours add spreadsheet:
+     b) name the new tab "Hours Import"
+     a) add columns "Event", "Start Date", "End Date", "Hours" for each 6 month hours summary column
+        1) fill the Event column with "VGF YEAR" the year fir the period from 9/1-2/28 is the year that 2/28 falls in
+        2) fill the Start Date column with the start date of the 6 month period (either YEAR-03-01, or YEAR-09-01)
+        3) fill the End Date column with the end date of the 6 month period (either YEAR-02-28, or YEAR-08-31)
+        4) copy the Hours column numbers in
+     c) do a) and b) for each 6 month period, just adding columns to the right in the VGF_Volunteer_Hours_Import_YEAR.xlsx spreadsheet
+     HINT!!! when adding dates, you should probably indicate to Excel that your entry is just text, not a date. You do this by adding a single quote beofre the date. If you don't do this, there may be problems when reading in the dates as they will come in as somekind of timestamp rather than the text that is expected.
+9) Before adding hours, you need to add the users using the VGF_Volunteers_Import_YEAR.xlsx spreadsheet.
+    You do this to catch any new users since the last upload. The import will ignore previously added users and only create new users that don't exist already. With a spreadsheet containing many hundreds of users, you need to break up the spreadsheet into separate spreadsheets with 100 rows or less. This is important because Bluehost has script execution time limits of 120 seconds and it takes about 1-1.5 minutes to import 100 user rows. So, just create as many spreadsheets as needed with suffixes in the names like _1-100, _101-200, ... retaining the same header row in each
+    a) go to the FEU Hours admin dashboard and select Add Users From Spreadsheet. Select the approprite file and click Import Users. After about 1-1.5 minutes it should indicate that the users have been added.
+    b) do this for each 100 row spreadsheet.
+    HINT!!! You can keep track of how many new users have been added by looking at the top of the admin poage where it indicates number of users with recorded hours out of total users. You should see the number of total users increase. The only reason it wouldn't increase would be because the spredsheet you imported either had an error of some kind or all the users already exist. You can check the list randomly to see if all users are already in the database.
+10) Once all the users have been added, you can then add the hours from the VGF_Volunteer_Hours_Import_YEAR.xlsx spreadsheet. This spreadsheet should import very quickly 10 seconds or so, so we can do the entire spreadsheet at once
+  a) go to the FEU Hours admin dashboard and select Add Users Hours From Spreadsheet. Select the approprite file and click Add Users Hours.
+  b) You should see the number of users with recorded hours increase at the top of the page.
+11) You can check on individual users by filtering usernames at the top, then clicking on a username to see what hours were recorded
+12) User hours can be exported as well
+
+
+
+
 These are what can be set in the user add spreadsheet:
 
 Allowed_Fields:
@@ -30,7 +71,7 @@ Levels:
 "Regular User"    => 1
 
 Interests: 
-UlsterCorps U-Team,  UlsterCorps Glean Team,  UlsterCorps Tech Team, Affordable/Transitional Housing, Arts, Disability Services, Education/Mentoring, Emergency Services, Food Pantries + Soup Kitchens, Government, Green Energy/Sustainability, Health Services, Legal Services, Libraries, Senior Services, Wildlife & Animal Welfare, Youth Services, Opportunities for Groups, Opportunities for Youth
+UlsterCorps U-Team,  UlsterCorps Glean Team,  UlsterCorps Tech Team, Affordable/Transitional Housing, Arts, Disability Services, Education/Mentoring, Emergency Services, Food Pantries + Soup Kitchens, Government, Green Energy/Sustainability, Health Services, Legal Services, Libraries, Senior Services, Wildlife & Aimal Welfare, Youth Services, Opportunities for Groups, Opportunit,es for Youth
 
 Skillsets:
  Artists, Computer Skills , Construction, Cooking, Farming/Gardening, Fundraising, Grantwriting, Graphic Design, Heavy lifting, Media/PR , Mediation/Legal, Mentorship, Research, Spanish Speakers, Special Event Planning, Transportation, Tutoring, Videography/ Photography
