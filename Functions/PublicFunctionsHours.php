@@ -191,9 +191,9 @@ function EWD_FEUPHRS_Import_Users_Hours_From_Excel() {
 	// Instantiate a new PHPExcel object
 	if (!is_user_logged_in()) {exit();}
 	/* Test if there is an error with the uploaded spreadsheet and return that error if there is */
-	if (!empty($_FILES['Users_Spreadsheet']['error']) &
-			$_FILES['Users_Spreadsheet']['error'] != 0 ) {
-		switch($_FILES['Users_Spreadsheet']['error'])	{
+	if (!empty($_FILES['User_Hours_Spreadsheet']['error']) &
+			$_FILES['User_Hours_Spreadsheet']['error'] != 0 ) {
+		switch($_FILES['User_Hours_Spreadsheet']['error'])	{
 			case '1':
 				$error = __('The uploaded file exceeds the upload_max_filesize directive in php.ini', 'EWD_FEUP');
 				break;
