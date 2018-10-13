@@ -162,23 +162,24 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 
 	// Build the workbook object out of the uploaded spredsheet
 	$inputFileType = PHPExcel_IOFactory::identify($Excel_URL);
-  $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+    $objReader = PHPExcel_IOFactory::createReader($inputFileType);
 	$objWorkBook = $objReader->load($Excel_URL);
 
 	// Create a worksheet object out of the product sheet in the workbook
-	$hoursIndex = $objWorkBook->getIndex($objWorkBook->getSheetByName('Hours Import'));
+	$sheet = $objWorkBook->getSheetByName('Hours Import');
+	if(!$sheet) {
+	    $update =  __('Spreadsheet missing "Hours Import" tab.');
+	    $user_update = array("Message_Type" => "Error", "Message" => $update);
+	    return $user_update;
+	}
+	$hoursIndex = $objWorkBook->getIndex($sheet);
 	if($hoursIndex >= 0) {
 		$objWorkBook->setActiveSheetIndex($hoursIndex);
-	} else {
-		$update =  __('Spreadsheet missing "Hours Import" tab.');
-		$user_update = array("Message_Type" => "Error", "Message" => $update);
-		return $user_update;
 	}
-	$sheet = $objWorkBook->getActiveSheet();
 
 	//List of fields that can be accepted via upload
 	$Allowed_Fields = array ("Username" => "Username",
-							 "Event Name" => "Event_Name",
+							 "Event" => "Event_Name",
 							 "Start Date" => "Hours_Start_Date",
 							 "End Date" => "Hours_Stop_Date",
 							 "Hours" => "Hours");
@@ -187,7 +188,7 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 	$highestColumn = $sheet->getHighestDataColumn(1);
 	$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
 	for ($column = 0; $column < $highestColumnIndex; $column++) {
-		$Titles[$column] = trim($sheet->getCellByColumnAndRow($column, 1)->getValue());
+		$Titles[$column] = $Allowed_Fields[trim($sheet->getCellByColumnAndRow($column, 1)->getValue())];
 	}
 	if(count($Titles) < count($Allowed_Fields)) {
 		// missing one or more columns
@@ -198,13 +199,13 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 	}
 	// Make sure all columns are acceptable based on the acceptable fields above
 	foreach ($Titles as $key => $Title) {
-		if ($Title != "" and !array_key_exists($Title, $Allowed_Fields)) {
+		if ($Title != "" and array_search($Title, array_values($Allowed_Fields)) === false) {
 			$update =  __("You have a column which is not recognized: ", 'EWD_FEUP') .
 								$Title . __(". </br>Please start with the template spreadsheet.", 'EWD_FEUP');
 			$user_update = array("Message_Type" => "Error", "Message" => $update);
 			return $user_update;
 		}
-		if ($Title == "") {
+		if ($key === NULL) {
 			$update = __("You have a blank column that has been edited.</br>Please delete that column and re-upload your spreadsheet.", 'EWD_FEUP');
 			$user_update = array("Message_Type" => "Error", "Message" => $update);
 			return $user_update;
@@ -230,66 +231,142 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 	foreach ($eventsFromDb as $event) {
 		$Events[trim($event->event_name)] = $event->event_id;
 	}
+	
 	// index to get certain info out of $Data since we don't know the column order
 	$usernameIndex = array_search('Username', $Titles);
-	$hoursIndex = array_search('Hours', $Titles);
-	$eventIndex = array_search('Event Name', $Titles);
-	$startDateIndex = array_search('Start Date', $Titles);
-	$stopDateIndex = array_search('End Date', $Titles);
+	$hoursIndices = array_keys(array_filter($Titles, 
+    	                             function($v, $k) {
+    	                               return $v == "Hours"; }, 
+    	                             ARRAY_FILTER_USE_BOTH));
+	$eventIndices = array_keys(array_filter($Titles,
+                            	    function($v, $k) {
+                            	        return $v == "Event_Name"; },
+                            	        ARRAY_FILTER_USE_BOTH));
+	$startDateIndices = array_keys(array_filter($Titles,
+                            	    function($v, $k) {
+                            	        return $v == "Hours_Start_Date"; },
+                            	        ARRAY_FILTER_USE_BOTH));
+	$stopDateIndices = array_keys(array_filter($Titles,
+                            	    function($v, $k) {
+                            	        return $v == "Hours_Stop_Date"; },
+                            	        ARRAY_FILTER_USE_BOTH));
 	// $wpdb->show_errors();
 	foreach ($Data as $User) {
-		if ($User[$hoursIndex] == "0" or empty($User[$hoursIndex])) {
-			// skip this entry if the hours are 0 or empty
-			continue;
-		}
-		// Create an array of the values that are being inserted for each user
-		if(array_key_exists(strtolower(trim($User[$eventIndex])), $Events)) {
-			$eventId = "'".$Events[strtolower(trim($User[$eventIndex]))]."'";
-		} else {
-			$eventId = 'NULL';
-		}
-		$username = trim($User[$usernameIndex]);
-		$sql = "SELECT DISTINCT User_ID from $ewd_feup_user_table_name WHERE Username = '$username'";
-		$userid = $wpdb->get_var($sql);
-		if($userid == "") {
-		    // user doesn't exist skip
-		    continue;
-		}
-		$startDate = date_create_from_format('m-d-Y', trim($User[$startDateIndex]));
-		if ($startDate === FALSE) {
-			$update = __(trim($User[$startDateIndex]) . "Inavlid date format for Start Date in row for user '$username'.  Should be in mm-dd-yyyy format.", 'EWD_FEUP');
-			$user_update = array("Message_Type" => "Error", "Message" => $update);
-			return $user_update;
-		}
-		$endDate = date_create_from_format('m-d-Y', trim($User[$stopDateIndex]));
-		if ($endDate === FALSE) {
-			// use the start date if no end date specified, or it is incorrectly formatted
-			$endDate = $startDate;
-		}
-		$User[$startDateIndex] = $startDate->format('Y-m-d');
-		$User[$stopDateIndex] = $endDate->format('Y-m-d');
-		$values = [];
-		$colNames = [];
-		foreach ($User as $colIndex => $value) {
-			if ($Titles[$colIndex] != 'Username') {
-				$values[$colIndex] = esc_sql($value);
-				$colNames[$colIndex] = $Allowed_Fields[$Titles[$colIndex]];
-			}
-		}
-		$colNames[] = "User_ID";
-		$values[] = $userid;
-		$colNamesString = implode(",", $colNames);
-		$valuesString = implode("','", $values);
-		$sql =  "INSERT INTO $ewd_feup_user_hours_table_name ";
-		$sql .= "(" . $colNamesString . ", Event_ID, Verified) ";
-		$sql .= "VALUES ('" . $valuesString . "', $eventId, '1')";
-		$wpdb->query($sql);
-		unset($values);
-		unset($valuesString);
+	    for($indx = 0; $indx < count($eventIndices); $indx ++) {
+	        if ($User[$hoursIndices][$indx] == "0" or empty($User[$hoursIndices[$indx]])) {
+    			// skip this entry if the hours are 0 or empty
+    			continue;
+    		}
+    		// Create an array of the values that are being inserted for each user
+    		if(array_key_exists(strtolower(trim($User[$eventIndices[$indx]])), $Events)) {
+    			$eventId = "'".$Events[strtolower(trim($User[$eventIndices[$indx]]))]."'";
+    		} else {
+    			$eventId = 'NULL';
+    		}
+    		$username = trim($User[$usernameIndex]);
+    		$sql = "SELECT DISTINCT User_ID from $ewd_feup_user_table_name WHERE Username = '$username'";
+    		$userid = $wpdb->get_var($sql);
+    		if($userid == "") {
+    		    // user doesn't exist skip
+    		    break;
+    		}
+    		$startDate = date_create_from_format('Y-m-d', trim($User[$startDateIndices[$indx]]));
+    		if ($startDate === FALSE) {
+    			$update = __(trim($User[$startDateIndices][$indx]) . "Inavlid date format for Start Date in row for user '$username'.  Should be in mm-dd-yyyy format.", 'EWD_FEUP');
+    			$user_update = array("Message_Type" => "Error", "Message" => $update);
+    			return $user_update;
+    		}
+    		$endDate = date_create_from_format('Y-m-d', trim($User[$stopDateIndices[$indx]]));
+    		if ($endDate === FALSE) {
+    			// use the start date if no end date specified, or it is incorrectly formatted
+    			$endDate = $startDate;
+    		}
+    		$User[$startDateIndices[$indx]] = $startDate->format('Y-m-d');
+    		$User[$stopDateIndices[$indx]] = $endDate->format('Y-m-d');
+    		$values = [];
+    		$colNames = [];
+    		$values[] = "'$userid'";
+    		$values[] = $eventId;
+    		$values[] = "1";
+    		$values[] = "'".$User[$eventIndices[$indx]]."'";
+    		$values[] = "'".$User[$startDateIndices[$indx]]."'";
+    		$values[] = "'".$User[$stopDateIndices[$indx]]."'";
+    		$values[] = "'".round($User[$hoursIndices[$indx]])."'";
+    		$colNames[] = "User_ID";
+    		$colNames[] = "Event_ID";
+    		$colNames[] = "Verified";
+    		$colNames[] = $Titles[$eventIndices[$indx]];
+    		$colNames[] = $Titles[$startDateIndices[$indx]];
+    		$colNames[] = $Titles[$stopDateIndices[$indx]];
+    		$colNames[] = $Titles[$hoursIndices[$indx]];
+    		$exists = Check_Exists_FEUPHRS_User_Hours_Entry($colNames, $values);
+    		if($exists) {
+    		    Update_FEUPHRS_User_Hours_Entry($colNames, $values);
+    		} else {
+    		    Insert_FEUPHRS_User_Hours_Entry($colNames, $values);
+    		}
+    		unset($values);
+    		unset($valuesString);
+	   }
 	}
 	$update = __("Hours added successfully.", 'EWD_FEUP');
 	$user_update = array("Message_Type" => "Update", "Message" => $update);
 	return $user_update;
+}
+
+function Check_Exists_FEUPHRS_User_Hours_Entry($colNames, $colValues) {
+    global $wpdb;
+    global $ewd_feup_user_hours_table_name;
+    $sql = "SELECT COUNT(User_ID) FROM $ewd_feup_user_hours_table_name WHERE ";
+    for($indx = 0; $indx < count($colNames); $indx ++) {
+        if($colNames[$indx] != "Hours") {
+            if($colNames[$indx] == "Event_ID" & $colValues[$indx] == "NULL") {
+                $sql .= $colNames[$indx]." IS ".$colValues[$indx]. " ";
+            }else {
+                $sql .= $colNames[$indx]." = ".$colValues[$indx]. " ";
+            }
+            $sql .= "AND ";
+        }
+    }
+    $sql = substr($sql, 0, -4);
+    $exists = $wpdb->get_var($sql);
+    return $exists != 0;
+}
+
+function Update_FEUPHRS_User_Hours_Entry($colNames, $colValues) {
+    global $wpdb;
+    global $ewd_feup_user_hours_table_name;
+    $sql = "UPDATE $ewd_feup_user_hours_table_name SET ";
+    for($indx = 0; $indx < count($colNames); $indx ++) {
+        $sql .= $colNames[$indx]." = ".$colValues[$indx]. " ";
+        if($indx < count($colNames) - 1) {
+            $sql .= ", ";
+        }
+    }
+    $sql .= "WHERE ";
+    for($indx = 0; $indx < count($colNames); $indx ++) {
+        if($colNames[$indx] != "Hours") {
+            if($colNames[$indx] == "Event_ID" & $colValues[$indx] == "NULL") {
+                $sql .= $colNames[$indx]." IS ".$colValues[$indx]. " ";
+            }else {
+                $sql .= $colNames[$indx]." = ".$colValues[$indx]. " ";
+            }
+            $sql .= "AND ";
+        }
+    }
+    $sql = substr($sql, 0, -4);
+    $wpdb->query($sql);
+}
+
+function Insert_FEUPHRS_User_Hours_Entry($colNames, $colValues, $eventId) {
+    global $wpdb;
+    global $ewd_feup_user_hours_table_name;
+    $colNamesString = implode(",", $colNames);
+    $valuesString = implode(",", $colValues);
+    $sql =  "INSERT INTO $ewd_feup_user_hours_table_name ";
+    $sql .= "(" . $colNamesString . ") ";
+    $sql .= "VALUES (" . $valuesString .")";
+    $wpdb->query($sql);
 }
 
 function Add_FEUPHRS_Users_From_Spreadsheet($Excel_File_Name) {

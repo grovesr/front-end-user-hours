@@ -6,11 +6,17 @@ before this functionality plugin will work.
 
 == Important Notes ==
 TODO:
+    1) Add user search in admin table
+    1) add skipping of empty rows in spreadsheets (still need for user add)
+    1) DONE: in hours import come up with new way of adding multiple events on a single line in spreadsheet
+        event, start date, end date, hours,  event, start date, end date, event, hours, ...
+    1) DONE: when importing hours check for duplicate entry and update rather than insert if necessary
+    
     1) enable the user to edit their hour entries in the Hours detail table
     2) DONE: enable automatic e-mails to ulstercorps when users have entered hours so we know when we need to verify the hours
     3) DONE: fix the confirmation and password e-mails so that the return address isn't ulsterc3@box7... but is more like ulstercorps@ulstercorps.org
     4) add user's previous hours activity names to the top of the events list pull-down for quick re-entry of activity hours
-    5) Allow sorting of users names in the dashboard
+    5) DONE: Allow sorting of users names in the dashboard
     6) Allow sorting by event name in the User page
     7) Enhance FE tables of user hours to allow paging, sorting and editing of unverified hours
 
@@ -22,7 +28,7 @@ Author: Rob Groves
 Author URI: yoururl
 */
 global $wpdb, $EWD_FEUPHRS_db_version, $ewd_feup_user_hours_table_name,
-       $feup_message, $feuphrs_admin;
+       $feuphrs_message, $feuphrs_admin;
 $EWD_FEUPHRS_db_version = "0.4.0";
 $ewd_feup_user_hours_table_name = $wpdb->prefix . "EWD_FEUP_User_Hours";
 $feuphrs_admin = "rob@ulstercorps.org";
@@ -125,5 +131,5 @@ if (get_option('EWD_FEUPHRS_DB_Version') != $EWD_FEUPHRS_db_version) {
 }
 
 if ( !is_plugin_active( 'front-end-only-users/Main.php' ) ) {
-    $feup_message = array("Message_Type" => "Error", "Message" => "Front End Only Users Plugin is not activated! It is required to use the Front End User Hours Plugin.");
+    $feuphrs_message = array("Message_Type" => "Error", "Message" => "Front End Only Users Plugin is not activated! It is required to use the Front End User Hours Plugin.");
 } 
