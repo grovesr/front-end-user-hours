@@ -5,18 +5,22 @@ function EWD_FEUP_Query_User_Hours_Page($get,$user_table_name,$user_hours_table_
 	}
 	else {$Page = 1;
 	}
+	$whereClause = " ";
+	if (isset($_REQUEST['UserSearchValue'])) {
+	    $whereClause .= "WHERE  Username LIKE '%". $_REQUEST['UserSearchValue'] . "%' ";
+	}
 	$Sql =  "SELECT   B.User_ID AS User_ID, B.Username AS Username, ";
 	$Sql .= "SUM(IF(A.User_ID = B.User_ID and A.Verified = 1, A.Hours, 0)) AS Verified, ";
 	$Sql .= "SUM(IF(A.User_ID = B.User_ID and A.Verified = 0, A.Hours, 0)) AS Unverified ";
 	$Sql .= "FROM $user_hours_table_name  A join ";
 	$Sql .= "(SELECT DISTINCT $user_table_name.User_ID, $user_table_name.Username FROM $user_table_name) ";
-	$Sql .= "AS B on A.User_ID = B.User_ID GROUP BY B.User_ID ";
+	$Sql .= "AS B on A.User_ID = B.User_ID $whereClause GROUP BY B.User_ID ";
 	if (isset($get['OrderBy']) and isset($get['Order']) and $get['DisplayPage'] == "Dashboard") {
 		$Sql .= "ORDER BY " . $get['OrderBy']  ." ". $get['Order'] . " ";
 	}	else {
 		$Sql .= "ORDER BY  Username ";
 	}
-	$Sql .= " LIMIT " . (($Page - 1)*20 + 1) . ",20";
+	$Sql .= " LIMIT " . (($Page - 1)*20) . ",20";
 	return $Sql;
 };
 

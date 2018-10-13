@@ -67,6 +67,11 @@ function dashboard_header($Page, $sortDir)
 <?php wp_nonce_field(); ?>
 <?php wp_referer_field(); ?>
 <form action="admin.php?page=EWD-FEUPHRS-options&Action=EWD_FEUPHRS_MassEditUserHours" method="post">
+<p class="search-box">
+	<label class="screen-reader-text" for="post-search-input">Search Usernames:</label>
+	<input type="search" id="post-search-input" name="UserSearchValue" value="">
+	<input type="submit" name="" id="search-submit" class="button" value="Search Users">
+</p>
 <span class="displaying-num"><?php echo $UsersWithHoursCount; ?> <?php _e("users with recorded hours out of a total of  ", 'front-end-only-users') ?></span>
 <span class="displaying-num"><?php echo $UsersCount; ?> <?php _e("users", 'front-end-only-users') ?></span>
 <?php  table_nav($Number_of_Pages, $Page, $Current_Page_With_Order_By, TRUE);?>
