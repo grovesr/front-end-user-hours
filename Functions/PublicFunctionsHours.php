@@ -55,12 +55,12 @@ function EWD_FEUPHRS_Export_Users_Hours_To_Excel() {
 	foreach ($Users as $User)
 	{
     	$sheet->setCellValue("A" . $rowCount, $User->Username);
-			$sheet->setCellValue("B" . $rowCount, $User->Event_Name);
-			$sheet->setCellValue("C" . $rowCount, $User->Event_ID);
-			$sheet->setCellValue("D" . $rowCount, $User->Hours_Start_Date);
-			$sheet->setCellValue("E" . $rowCount, $User->Hours_Stop_Date);
-			$sheet->setCellValue("F" . $rowCount, $User->Hours);
-			$sheet->setCellValue("G" . $rowCount, $User->Verified);
+		$sheet->setCellValue("B" . $rowCount, $User->Event_Name);
+		$sheet->setCellValue("C" . $rowCount, $User->Event_ID);
+		$sheet->setCellValue("D" . $rowCount, $User->Hours_Start_Date);
+		$sheet->setCellValue("E" . $rowCount, $User->Hours_Stop_Date);
+		$sheet->setCellValue("F" . $rowCount, $User->Hours);
+		$sheet->setCellValue("G" . $rowCount, $User->Verified);
     	$rowCount++;
 	}
 
@@ -96,6 +96,10 @@ function EWD_FEUPHRS_Export_Users_Template_To_Excel() {
 	$importSheet->setCellValue("C1", "Start Date");
 	$importSheet->setCellValue("D1", "End Date");
 	$importSheet->setCellValue("E1", "Hours");
+	$importSheet->setCellValue("F1", "Event Name");
+	$importSheet->setCellValue("G1", "Start Date");
+	$importSheet->setCellValue("H1", "End Date");
+	$importSheet->setCellValue("I1", "Hours");
 
 	//start while loop to get data
 	$rowCount = 2;
@@ -129,11 +133,14 @@ function Create_Import_Instructions() {
 		   entries at 0, they will be ignored on import.
 	2) If you want to import hours for multiple different events/dates for a single user,
 	   copy that user's row the appropriate number of times.
+    2a) It is possible to import multiple events per row by adding more Event, Start, End, Hours columns.
+        See the Hours Import tab. This is useful if you have a small number of events that all users may
+        have participated in.
 	3) Enter the event name in each row.
 		a) If you use the exact name of an event recorded in Events Manager, a link
 		   will be created between the hours entered and the event.
 	4) Enter the start date and possibly end date in each row.
-		a) Dates should be in mm-dd-yyyy format (i.e. 03-26-2016).
+		a) Dates should be in yyyy-mm-dd format (i.e. 2016-03-26).
 		b) It's OK to have the same start and end dates.
 		c) If you enter only the start date, the end date will be set to the start date.
 	5) Enter the number of hours for each event/date in each row.
