@@ -236,20 +236,16 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 	$usernameIndex = array_search('Username', $Titles);
 	$hoursIndices = array_keys(array_filter($Titles, 
     	                             function($v, $k) {
-    	                               return $v == "Hours"; }, 
-    	                             ARRAY_FILTER_USE_BOTH));
+    	                               return $v == "Hours"; }));
 	$eventIndices = array_keys(array_filter($Titles,
                             	    function($v, $k) {
-                            	        return $v == "Event_Name"; },
-                            	        ARRAY_FILTER_USE_BOTH));
+                            	        return $v == "Event_Name"; }));
 	$startDateIndices = array_keys(array_filter($Titles,
                             	    function($v, $k) {
-                            	        return $v == "Hours_Start_Date"; },
-                            	        ARRAY_FILTER_USE_BOTH));
+                            	        return $v == "Hours_Start_Date"; }));
 	$stopDateIndices = array_keys(array_filter($Titles,
                             	    function($v, $k) {
-                            	        return $v == "Hours_Stop_Date"; },
-                            	        ARRAY_FILTER_USE_BOTH));
+                            	        return $v == "Hours_Stop_Date"; }));
 	// $wpdb->show_errors();
 	foreach ($Data as $User) {
 	    for($indx = 0; $indx < count($eventIndices); $indx ++) {
@@ -263,7 +259,7 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
     		} else {
     			$eventId = 'NULL';
     		}
-    		$username = trim($User[$usernameIndex]);
+    		$username = esc_sql(trim($User[$usernameIndex]));
     		$sql = "SELECT DISTINCT User_ID from $ewd_feup_user_table_name WHERE Username = '$username'";
     		$userid = $wpdb->get_var($sql);
     		if($userid == "") {

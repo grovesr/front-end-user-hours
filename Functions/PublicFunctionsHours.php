@@ -231,7 +231,6 @@ function EWD_FEUPHRS_Import_Users_Hours_From_Excel() {
 		$error = __('File must be .csv, .xls or .xlsx', 'EWD_FEUP');
 	} else {
 		/* Move the file and store the URL to pass it onwards*/
- 	  $msg .= $_FILES['Users_Hours_Spreadsheet']['name'];
 		//for security reason, we force to remove all uploaded file
 		$target_path = ABSPATH . 'wp-content/plugins/front-end-user-hours/user-sheets/';
 		$target_path = $target_path . basename( $_FILES['Users_Hours_Spreadsheet']['name']);
