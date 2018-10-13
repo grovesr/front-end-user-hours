@@ -11,12 +11,16 @@
 										$ewd_feup_user_table_name,
 										$ewd_feup_user_hours_table_name);
 	$userRows = $wpdb->get_results($Sql);
+	$Sql=EWD_FEUP_Query_User_Hours_Count($_GET,
+	    $ewd_feup_user_table_name,
+	    $ewd_feup_user_hours_table_name);
+	$wpdb->query($Sql);
 	$num_rows = $wpdb->num_rows;
 	$Sql = EWD_FEUP_Query_Users_Count($ewd_feup_user_table_name);
 	$UsersCount = $wpdb->get_var($Sql);
 	$Sql = EWD_FEUP_Query_User_Hours_Count($ewd_feup_user_hours_table_name);
 	$UsersWithHoursCount = $wpdb->get_var($Sql);
-	$Number_of_Pages = ceil($UsersWithHoursCount/20);
+	$Number_of_Pages = ceil($num_rows/20);
 	$Current_Page_With_Order_By = "admin.php?page=EWD-FEUPHRS-options&DisplayPage=Dashboard";
 	$sortDir = "asc";
 	if (isset($_GET['Order'])) {
@@ -70,7 +74,7 @@ function dashboard_header($Page, $sortDir)
 <p class="search-box">
 	<label class="screen-reader-text" for="post-search-input">Search Usernames:</label>
 	<input type="search" id="post-search-input" name="UserSearchValue" value="">
-	<input type="submit" name="" id="search-submit" class="button" value="Search Users">
+	<input type="submit" name="" id="search-submit" class="button" value="Search Usernames">
 </p>
 <span class="displaying-num"><?php echo $UsersWithHoursCount; ?> <?php _e("users with recorded hours out of a total of  ", 'front-end-only-users') ?></span>
 <span class="displaying-num"><?php echo $UsersCount; ?> <?php _e("users", 'front-end-only-users') ?></span>

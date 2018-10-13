@@ -39,7 +39,7 @@ function EWD_FEUPHRS_Export_Users_Hours_To_Excel() {
 	}
 	// Print out the regular order field labels
 	$sheet->setCellValue("A1", "Username");
-	$sheet->setCellValue("B1", "Event Name");
+	$sheet->setCellValue("B1", "Event");
 	$sheet->setCellValue("C1", "Event ID");
 	$sheet->setCellValue("D1", "Start Date");
 	$sheet->setCellValue("E1", "End Date");
@@ -92,11 +92,11 @@ function EWD_FEUPHRS_Export_Users_Template_To_Excel() {
 	}
 	// Print out the regular order field labels
 	$importSheet->setCellValue("A1", "Username");
-	$importSheet->setCellValue("B1", "Event Name");
+	$importSheet->setCellValue("B1", "Event");
 	$importSheet->setCellValue("C1", "Start Date");
 	$importSheet->setCellValue("D1", "End Date");
 	$importSheet->setCellValue("E1", "Hours");
-	$importSheet->setCellValue("F1", "Event Name");
+	$importSheet->setCellValue("F1", "Event");
 	$importSheet->setCellValue("G1", "Start Date");
 	$importSheet->setCellValue("H1", "End Date");
 	$importSheet->setCellValue("I1", "Hours");

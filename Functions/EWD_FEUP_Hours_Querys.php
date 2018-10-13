@@ -9,7 +9,7 @@ function EWD_FEUP_Query_User_Hours_Page($get,$user_table_name,$user_hours_table_
 	if (isset($_REQUEST['UserSearchValue'])) {
 	    $whereClause .= "WHERE  Username LIKE '%". $_REQUEST['UserSearchValue'] . "%' ";
 	}
-	$Sql =  "SELECT   B.User_ID AS User_ID, B.Username AS Username, ";
+	$Sql =  "SELECT B.User_ID AS User_ID, B.Username AS Username, ";
 	$Sql .= "SUM(IF(A.User_ID = B.User_ID and A.Verified = 1, A.Hours, 0)) AS Verified, ";
 	$Sql .= "SUM(IF(A.User_ID = B.User_ID and A.Verified = 0, A.Hours, 0)) AS Unverified ";
 	$Sql .= "FROM $user_hours_table_name  A join ";
@@ -24,9 +24,24 @@ function EWD_FEUP_Query_User_Hours_Page($get,$user_table_name,$user_hours_table_
 	return $Sql;
 };
 
-function EWD_FEUP_Query_User_Hours_Count($user_hours_table_name) {
-	$Sql = "SELECT COUNT(DISTINCT User_ID) FROM $user_hours_table_name ";
-	return $Sql;
+function EWD_FEUP_Query_User_Hours_Count($get,$user_table_name,$user_hours_table_name) {
+
+    $whereClause = " ";
+    if (isset($_REQUEST['UserSearchValue'])) {
+        $whereClause .= "WHERE  Username LIKE '%". $_REQUEST['UserSearchValue'] . "%' ";
+    }
+    $Sql =  "SELECT SQL_CALC_FOUND_ROWS B.User_ID AS User_ID, B.Username AS Username, ";
+    $Sql .= "SUM(IF(A.User_ID = B.User_ID and A.Verified = 1, A.Hours, 0)) AS Verified, ";
+    $Sql .= "SUM(IF(A.User_ID = B.User_ID and A.Verified = 0, A.Hours, 0)) AS Unverified ";
+    $Sql .= "FROM $user_hours_table_name  A join ";
+    $Sql .= "(SELECT DISTINCT $user_table_name.User_ID, $user_table_name.Username FROM $user_table_name) ";
+    $Sql .= "AS B on A.User_ID = B.User_ID $whereClause GROUP BY B.User_ID ";
+    if (isset($get['OrderBy']) and isset($get['Order']) and $get['DisplayPage'] == "Dashboard") {
+        $Sql .= "ORDER BY " . $get['OrderBy']  ." ". $get['Order'] . " ";
+    }	else {
+        $Sql .= "ORDER BY  Username ";
+    }
+    return $Sql;
 };
 
 function EWD_FEUP_Query_Users_Count($users_table_name) {
