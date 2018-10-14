@@ -6,7 +6,7 @@ before this functionality plugin will work.
 
 == Important Notes ==
 TODO:
-    1) Add user search in admin table
+    1) DONE: Add user search in admin table
     1) add skipping of empty rows in spreadsheets (still need for user add)
     1) DONE: in hours import come up with new way of adding multiple events on a single line in spreadsheet
         event, start date, end date, hours,  event, start date, end date, event, hours, ...
