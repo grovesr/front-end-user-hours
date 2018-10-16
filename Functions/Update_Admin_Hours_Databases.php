@@ -247,6 +247,12 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
                             	    function($v, $k) {
                             	        return $v == "Hours_Stop_Date"; }));
 	// $wpdb->show_errors();
+	if((count($hoursIndices) + count($eventIndices) + count($startDateIndices) + count($stopDateIndices)) !== 
+	    max(array(count($hoursIndices), count($eventIndices), count($startDateIndices), count($stopDateIndices))) * 4) {
+        $update = __("You don't have complete sets of columns 'Event', 'Start Date', 'Stop Date', Hours' for each common event", 'EWD_FEUP');
+        $user_update = array("Message_Type" => "Error", "Message" => $update);
+        return $user_update;
+	}
 	foreach ($Data as $User) {
 	    for($indx = 0; $indx < count($eventIndices); $indx ++) {
 	        if ($User[$hoursIndices][$indx] == "0" or empty($User[$hoursIndices[$indx]])) {
