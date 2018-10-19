@@ -4,3 +4,5 @@
 user-sheets/*
 Functions/debug.log
 docs/debug.log
+docs/*php
+docs/*patch
