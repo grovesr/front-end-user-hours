@@ -158,7 +158,7 @@ function Add_FEUPHRS_Users_Hours_From_Spreadsheet($Excel_File_Name) {
 	$Excel_URL = '../wp-content/plugins/front-end-user-hours/user-sheets/' . $Excel_File_Name;
 
 	// Uses the PHPExcel class to simplify the file parsing process
-	include_once('../wp-content/plugins/front-end-only-users/PHPExcel/Classes/PHPExcel.php');
+	include_once('../wp-content/plugins/front-end-user-hours/PHPExcel/Classes/PHPExcel.php');
 
 	// Build the workbook object out of the uploaded spredsheet
 	$inputFileType = PHPExcel_IOFactory::identify($Excel_URL);
@@ -391,7 +391,7 @@ function Add_FEUPHRS_Users_From_Spreadsheet($Excel_File_Name) {
     $Excel_URL = '../wp-content/plugins/front-end-user-hours/user-sheets/' . $Excel_File_Name;
     
     // Uses the PHPExcel class to simplify the file parsing process
-    include_once('../wp-content/plugins/front-end-only-users/PHPExcel/Classes/PHPExcel.php');
+    include_once('../wp-content/plugins/front-end-user-hours/PHPExcel/Classes/PHPExcel.php');
     
     // Build the workbook object out of the uploaded spredsheet
     $inputFileType = PHPExcel_IOFactory::identify($Excel_URL);

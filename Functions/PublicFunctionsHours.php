@@ -28,7 +28,7 @@ function Get_Users_Hours_Details($Username) {
 function EWD_FEUPHRS_Export_Users_Hours_To_Excel() {
 	global $wpdb;
 	global $ewd_feup_user_table_name, $ewd_feup_user_hours_table_name;
-	include_once('../wp-content/plugins/front-end-only-users/PHPExcel/Classes/PHPExcel.php');
+	include_once('../wp-content/plugins/front-end-user-hours/PHPExcel/Classes/PHPExcel.php');
 	// Instantiate a new PHPExcel object
 	$objPHPExcel = new PHPExcel();
 	$sheet = new PHPExcel_Worksheet($objPHPExcel, 'User Hours');
@@ -77,7 +77,7 @@ function EWD_FEUPHRS_Export_Users_Template_To_Excel() {
 	global $wpdb;
 	global $ewd_feup_user_table_name;
 
-	include_once('../wp-content/plugins/front-end-only-users/PHPExcel/Classes/PHPExcel.php');
+	include_once('../wp-content/plugins/front-end-user-hours/PHPExcel/Classes/PHPExcel.php');
 
 	// Instantiate a new PHPExcel object
 	$objPHPExcel = new PHPExcel();
@@ -194,7 +194,7 @@ function Add_Help_To_Import_Spreadsheet($objPHPExcel = NULL, $instructionIndex =
 function EWD_FEUPHRS_Import_Users_Hours_From_Excel() {
 	global $wpdb;
 	global $ewd_feup_user_table_name;
-	include_once('../wp-content/plugins/front-end-only-users/PHPExcel/Classes/PHPExcel.php');
+	include_once('../wp-content/plugins/front-end-user-hours/PHPExcel/Classes/PHPExcel.php');
 	// Instantiate a new PHPExcel object
 	if (!is_user_logged_in()) {exit();}
 	/* Test if there is an error with the uploaded spreadsheet and return that error if there is */
@@ -264,7 +264,7 @@ function EWD_FEUPHRS_Import_Users_Hours_From_Excel() {
 function EWD_FEUPHRS_Import_Users_From_Excel() {
     global $wpdb;
     global $ewd_feup_user_table_name;
-    include_once('../wp-content/plugins/front-end-only-users/PHPExcel/Classes/PHPExcel.php');
+    include_once('../wp-content/plugins/front-end-user-hours/PHPExcel/Classes/PHPExcel.php');
     // Instantiate a new PHPExcel object
     if (!is_user_logged_in()) {exit();}
     /* Test if there is an error with the uploaded spreadsheet and return that error if there is */
